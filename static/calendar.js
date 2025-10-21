@@ -42,6 +42,8 @@ function showErrorMessage(message) {
 
 // Initialize the calendar
 document.addEventListener('DOMContentLoaded', function() {
+    populateYearSelector();
+    updateMonthYearSelectors();
     updateCalendar();
     loadEvents();
     loadHolidays();
@@ -207,6 +209,7 @@ function previousMonth() {
     updateCalendar();
     loadEvents();
     loadHolidays();
+    updateMonthYearSelectors();
 }
 
 function nextMonth() {
@@ -218,6 +221,56 @@ function nextMonth() {
     updateCalendar();
     loadEvents();
     loadHolidays();
+    updateMonthYearSelectors();
+}
+
+function changeMonth() {
+    const monthSelector = document.getElementById('month-selector');
+    currentMonth = parseInt(monthSelector.value);
+    updateCalendar();
+    loadEvents();
+    loadHolidays();
+}
+
+function changeYear() {
+    const yearSelector = document.getElementById('year-selector');
+    currentYear = parseInt(yearSelector.value);
+    updateCalendar();
+    loadEvents();
+    loadHolidays();
+}
+
+function updateMonthYearSelectors() {
+    const monthSelector = document.getElementById('month-selector');
+    const yearSelector = document.getElementById('year-selector');
+    
+    if (monthSelector) {
+        monthSelector.value = currentMonth;
+    }
+    
+    if (yearSelector) {
+        yearSelector.value = currentYear;
+    }
+}
+
+function populateYearSelector() {
+    const yearSelector = document.getElementById('year-selector');
+    if (!yearSelector) return;
+    
+    const currentYear = new Date().getFullYear();
+    const startYear = currentYear - 10; // 10 years back
+    const endYear = currentYear + 10;   // 10 years forward
+    
+    yearSelector.innerHTML = '';
+    
+    for (let year = startYear; year <= endYear; year++) {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        yearSelector.appendChild(option);
+    }
+    
+    yearSelector.value = currentYear;
 }
 
 function selectDate(year, month, day) {

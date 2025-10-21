@@ -27,6 +27,14 @@
             text-align: center;
         }
         
+        #current-month-year {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: 1px;
+        }
+        
         .calendar-nav {
             display: flex;
             justify-content: space-between;
@@ -47,6 +55,36 @@
         .calendar-nav button:hover {
             background: rgba(255,255,255,0.3);
             transform: translateY(-2px);
+        }
+        
+        .month-year-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .month-year-selector select {
+            background: rgba(255,255,255,0.9);
+            border: none;
+            color: #333;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: 500;
+            min-width: 120px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .month-year-selector select:hover {
+            background: white;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .month-year-selector select:focus {
+            outline: none;
+            background: white;
+            box-shadow: 0 0 0 2px rgba(255,255,255,0.5);
         }
         
         .calendar-grid {
@@ -423,11 +461,30 @@
                 <div class="col-lg-8">
                     <div class="calendar-card">
                         <div class="calendar-header">
+                            <h2 id="current-month-year" class="mb-3">October 2025</h2>
                             <div class="calendar-nav">
                                 <button onclick="previousMonth()">
                                     <i class="fas fa-chevron-left"></i>
                                 </button>
-                                <h2 id="current-month-year">January 2024</h2>
+                                <div class="month-year-selector">
+                                    <select id="month-selector" class="form-select" onchange="changeMonth()">
+                                        <option value="0">January</option>
+                                        <option value="1">February</option>
+                                        <option value="2">March</option>
+                                        <option value="3">April</option>
+                                        <option value="4">May</option>
+                                        <option value="5">June</option>
+                                        <option value="6">July</option>
+                                        <option value="7">August</option>
+                                        <option value="8">September</option>
+                                        <option value="9">October</option>
+                                        <option value="10">November</option>
+                                        <option value="11">December</option>
+                                    </select>
+                                    <select id="year-selector" class="form-select" onchange="changeYear()">
+                                        <!-- Years will be populated by JavaScript -->
+                                    </select>
+                                </div>
                                 <button onclick="nextMonth()">
                                     <i class="fas fa-chevron-right"></i>
                                 </button>
