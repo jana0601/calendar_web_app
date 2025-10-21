@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar Web App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .calendar-container {
+            background: linear-gradient(135deg, #0f4c75 0%, #3282b8 50%, #0f4c75 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+        
+        .calendar-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .calendar-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .calendar-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .calendar-nav button {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .calendar-nav button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: #e9ecef;
+            margin: 0;
+        }
+        
+        .calendar-day-header {
+            background: #f8f9fa;
+            padding: 15px 5px;
+            text-align: center;
+            font-weight: bold;
+            color: #495057;
+        }
+        
+        .calendar-day {
+            background: white;
+            min-height: 100px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .calendar-day:hover {
+            background: #f8f9fa;
+            transform: scale(1.02);
+        }
+        
+        .calendar-day.other-month {
+            background: #f8f9fa;
+            color: #adb5bd;
+        }
+        
+        .calendar-day.today {
+            background: linear-gradient(45deg, #0f4c75, #3282b8);
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(15, 76, 117, 0.5);
+            transform: scale(1.05);
+        }
+        
+        .calendar-day.has-event {
+            background: #e8f4fd;
+            border-left: 4px solid #3282b8;
+        }
+        
+        .calendar-day.has-holiday {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+        }
+        
+        .day-number {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .event-indicator {
+            font-size: 10px;
+            background: #2196f3;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin: 1px;
+            display: inline-block;
+        }
+        
+        .holiday-indicator {
+            font-size: 10px;
+            background: #ff9800;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin: 1px;
+            display: inline-block;
+        }
+        
+        .holiday-indicator.germany {
+            background: #4caf50;
+        }
+        
+        .note-indicator {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 12px;
+            height: 12px;
+            background: #3282b8;
+            color: white;
+            border-radius: 50%;
+            font-size: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .calendar-day.has-note {
+            border-left: 3px solid #3282b8;
+        }
+        
+        .note-display-box {
+            background: #f8f9fa;
+            border: 2px solid #3282b8;
+            border-radius: 10px;
+            padding: 15px;
+            min-height: 100px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .note-display-box.has-note {
+            background: #e8f4fd;
+            border-color: #0f4c75;
+        }
+        
+        .note-display-content {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #0f4c75;
+        }
+        
+        .note-display-date {
+            font-weight: bold;
+            color: #3282b8;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .event-details-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .event-details-box {
+            background: white;
+            border: 2px solid #3282b8;
+            border-radius: 10px;
+            padding: 15px;
+            min-height: 150px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .event-details-box.has-content {
+            background: #e8f4fd;
+            border-color: #0f4c75;
+        }
+        
+        .event-item {
+            background: white;
+            border: 1px solid #3282b8;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .event-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .event-title {
+            font-weight: bold;
+            color: #0f4c75;
+            margin-bottom: 5px;
+        }
+        
+        .event-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .event-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .event-actions .btn {
+            padding: 2px 8px;
+            font-size: 12px;
+        }
+        
+        .event-details-date {
+            font-weight: bold;
+            color: #3282b8;
+            margin-bottom: 15px;
+            font-size: 16px;
+            border-bottom: 2px solid #3282b8;
+            padding-bottom: 8px;
+        }
+        
+        .event-details-date.today-highlight {
+            background: linear-gradient(45deg, #0f4c75, #3282b8);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            border-bottom: none;
+            margin-bottom: 20px;
+        }
+        
+        .today-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .events-section, .notes-section {
+            margin-bottom: 15px;
+        }
+        
+        .events-section h6, .notes-section h6 {
+            color: #0f4c75;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .note-actions {
+            margin-top: 10px;
+        }
+        
+        .note-actions .btn {
+            padding: 2px 8px;
+            font-size: 12px;
+        }
+        
+        .sidebar {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+        
+        .event-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .notes-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .calculator-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #0f4c75, #3282b8);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(15, 76, 117, 0.4);
+        }
+        
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+        }
+        
+        .modal-header {
+            background: linear-gradient(45deg, #0f4c75, #3282b8);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .success-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 9999;
+            display: none;
+        }
+        
+        .success-message.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .success-message.error {
+            background: #dc3545;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        
+        .form-control {
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .calc-history {
+            max-height: 150px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .calc-history-item {
+            padding: 5px 0;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 12px;
+        }
+        
+        .calc-history-item:last-child {
+            border-bottom: none;
+        }
+        
+        .calc-history-expression {
+            font-weight: bold;
+            color: #495057;
+        }
+        
+        .calc-history-result {
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .calc-history-time {
+            color: #6c757d;
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Success/Error Message -->
+    <div id="success-message" class="success-message">
+        <i class="fas fa-check-circle" id="message-icon"></i> <span id="success-text">Success!</span>
+    </div>
+    
+    <div class="calendar-container">
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Main Calendar -->
+                <div class="col-lg-8">
+                    <div class="calendar-card">
+                        <div class="calendar-header">
+                            <div class="calendar-nav">
+                                <button onclick="previousMonth()">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <h2 id="current-month-year">January 2024</h2>
+                                <button onclick="nextMonth()">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="calendar-grid" id="calendar-grid">
+                            <!-- Calendar days will be generated here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sidebar -->
+                <div class="col-lg-4">
+                    <div class="sidebar">
+                        <!-- Event Form -->
+                        <div class="event-form">
+                            <h5><i class="fas fa-plus-circle"></i> Add Event</h5>
+                            <form id="event-form">
+                                <div class="mb-3">
+                                    <input type="text" class="form-control" id="event-title" placeholder="Event Title" required>
+                                </div>
+                                <div class="mb-3">
+                                    <input type="date" class="form-control" id="event-date" required>
+                                </div>
+                                <div class="mb-3">
+                                    <textarea class="form-control" id="event-description" placeholder="Description" rows="3"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-save"></i> Save Event
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <!-- Notes Section -->
+                        <div class="notes-section">
+                            <h5><i class="fas fa-sticky-note"></i> Daily Notes</h5>
+                            <div class="mb-3">
+                                <input type="date" class="form-control" id="note-date">
+                            </div>
+                            <textarea class="form-control" id="note-content" placeholder="Write your notes here..." rows="4"></textarea>
+                            <div class="d-flex gap-2 mt-2">
+                                <button type="button" class="btn btn-info flex-fill" onclick="saveNewNote()">
+                                    <i class="fas fa-plus-circle"></i> Create New
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Event Details and Note Display Section -->
+                        <div class="event-details-section mb-4">
+                            <h5><i class="fas fa-calendar-check"></i> Event Details & Notes</h5>
+                            <div id="event-details-display" class="event-details-box">
+                                <p class="text-muted">Select a date to view events and notes</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Calculator -->
+                        <div class="calculator-section">
+                            <h5><i class="fas fa-calculator"></i> Calculator</h5>
+                            <div class="mb-3">
+                                <input type="text" class="form-control text-end" id="calc-display" readonly value="0">
+                            </div>
+                            <div class="mb-3">
+                                <div id="calc-history" class="calc-history"></div>
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-3"><button class="btn btn-outline-secondary w-100" onclick="calcInput('C')">C</button></div>
+                                <div class="col-3"><button class="btn btn-outline-secondary w-100" onclick="calcInput('CE')">CE</button></div>
+                                <div class="col-3"><button class="btn btn-outline-secondary w-100" onclick="calcInput('/')">/</button></div>
+                                <div class="col-3"><button class="btn btn-outline-secondary w-100" onclick="calcInput('*')">×</button></div>
+                                <div class="col-3"><button class="btn btn-outline-secondary w-100" onclick="calcInput('7')">7</button></div>
+                                <div class="col-3"><button class="btn btn-outline-secondary w-100" onclick="calcInput('8')">8</button></div>
+                                <div class="col-3"><button class="btn btn-outline-secondary w-100" onclick="calcInput('9')">9</button></div>
+                                <div class="col-3"><button class="btn btn-outline-secondary w-100" onclick="calcInput('-')">-</button></div>
+                                <div class="col-3"><button class="btn btn-outline-secondary w-100" onclick="calcInput('4')">4</button></div>
+                                <div class="col-3"><button class="btn btn-outline-secondary w-100" onclick="calcInput('5')">5</button></div>
+                                <div class="col-3"><button class="btn btn-outline-secondary w-100" onclick="calcInput('6')">6</button></div>
+                                <div class="col-3"><button class="btn btn-outline-secondary w-100" onclick="calcInput('+')">+</button></div>
+                                <div class="col-3"><button class="btn btn-outline-secondary w-100" onclick="calcInput('1')">1</button></div>
+                                <div class="col-3"><button class="btn btn-outline-secondary w-100" onclick="calcInput('2')">2</button></div>
+                                <div class="col-3"><button class="btn btn-outline-secondary w-100" onclick="calcInput('3')">3</button></div>
+                                <div class="col-3"><button class="btn btn-outline-secondary w-100" onclick="calcInput('=')">=</button></div>
+                                <div class="col-6"><button class="btn btn-outline-secondary w-100" onclick="calcInput('0')">0</button></div>
+                                <div class="col-3"><button class="btn btn-outline-secondary w-100" onclick="calcInput('.')">.</button></div>
+                                <div class="col-3"><button class="btn btn-outline-secondary w-100" onclick="calcInput('(')">(</button></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='calendar.js') }}"></script>
+</body>
+</html>
